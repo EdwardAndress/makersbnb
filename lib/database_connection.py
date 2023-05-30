@@ -20,9 +20,16 @@ class DatabaseConnection:
     # to localhost and select the database name given in argument.
     def connect(self):
         try:
-            self.connection = psycopg.connect(
-                f"postgresql://localhost/{self._database_name()}",
-                row_factory=dict_row)
+            if os.environ['CLOUD_DB']:
+                self.connection = psycopg.connect(
+                    os.environ['CLOUD_DB'],
+                    row_factory=dict_row
+                )
+            else:
+                self.connection = psycopg.connect(
+                    f"postgresql://localhost/{self._database_name()}",
+                    row_factory=dict_row
+                )
         except psycopg.OperationalError:
             raise Exception(f"Couldn't connect to the database {self._database_name()}! " \
                     f"Did you create it using `createdb {self._database_name()}`?")
